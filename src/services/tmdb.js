@@ -44,7 +44,18 @@ async function tmdbFetch(path, params = {}) {
       ? { Authorization: `Bearer ${auth.value}`, Accept: 'application/json' }
       : { Accept: 'application/json' },
   })
-  if (!res.ok) throw new Error('TMDB request failed')
+
+  if (!res.ok) {
+    let message = `TMDB request failed (${res.status})`
+    try {
+      const err = await res.json()
+      if (typeof err?.status_message === 'string' && err.status_message.trim()) message = err.status_message
+      else if (typeof err?.message === 'string' && err.message.trim()) message = err.message
+    } catch {
+    }
+    throw new Error(message)
+  }
+
   return res.json()
 }
 

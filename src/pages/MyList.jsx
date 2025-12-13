@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { MY_LIST_KEY, readMyList, removeMyListItem } from '../services/myList'
 
 export default function MyList() {

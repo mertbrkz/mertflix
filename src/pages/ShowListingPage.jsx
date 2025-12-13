@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import MovieCard from '../components/MovieCard'
+import Loading from '../components/Loading'
+import ErrorState from '../components/ErrorState'
 import {
   discoverMovies,
   searchMovies,
@@ -366,7 +368,8 @@ const ShowListingPage = ({ variant = 'shows' }) => {
     )
   }
 
-  if (error) return <h2 className="text-xl text-center mt-10 text-white">Hata: {error}</h2>
+  if (loading && shows.length === 0) return <Loading />
+  if (error) return <ErrorState title="Liste yüklenemedi" message={error} onRetry={() => setAuthNonce((n) => n + 1)} />
 
   return (
     <div>

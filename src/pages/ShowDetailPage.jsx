@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import Loading from '../components/Loading'
+import ErrorState from '../components/ErrorState'
 import { getTv, getTvSeason, tmdbImage } from '../services/tmdb'
 import { isInMyList, toggleMyListItem, MY_LIST_KEY, readMyList } from '../services/myList'
 
@@ -12,6 +14,7 @@ export default function ShowDetailPage() {
   const [cast, setCast] = useState([])
   const [season, setSeason] = useState(1)
   const [inList, setInList] = useState(false)
+  const [reloadNonce, setReloadNonce] = useState(0)
 
   useEffect(() => {
     if (!id) return
@@ -44,7 +47,7 @@ export default function ShowDetailPage() {
     }
     load()
     return () => { cancelled = true }
-  }, [id])
+  }, [id, reloadNonce])
 
   useEffect(() => {
     if (!show?.id || !season) return
@@ -73,8 +76,8 @@ export default function ShowDetailPage() {
     return () => window.removeEventListener('storage', onStorage)
   }, [show?.id])
 
-  if (loading) return <div className="text-center py-8">Yükleniyor...</div>
-  if (error) return <div className="text-center py-8 text-rose-500">Hata: {error}</div>
+  if (loading) return <Loading />
+  if (error) return <ErrorState title="Dizi yüklenemedi" message={error} onRetry={() => setReloadNonce((n) => n + 1)} />
   if (!show) return null
 
   const seasons = (show.seasons || [])

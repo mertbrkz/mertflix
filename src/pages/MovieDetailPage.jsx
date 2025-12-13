@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import Loading from '../components/Loading'
+import ErrorState from '../components/ErrorState'
 import { getMovie, tmdbImage } from '../services/tmdb'
 import { isInMyList, toggleMyListItem, MY_LIST_KEY, readMyList } from '../services/myList'
 
@@ -11,6 +13,7 @@ export default function MovieDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [inList, setInList] = useState(false)
+  const [reloadNonce, setReloadNonce] = useState(0)
 
   useEffect(() => {
     const read = () => setInList(isInMyList('movie', movieId))
@@ -48,7 +51,7 @@ export default function MovieDetailPage() {
     return () => {
       cancelled = true
     }
-  }, [movieId])
+  }, [movieId, reloadNonce])
 
   const poster = useMemo(() => tmdbImage(movie?.poster_path, 'w500'), [movie?.poster_path])
   const backdrop = useMemo(() => tmdbImage(movie?.backdrop_path, 'w1280'), [movie?.backdrop_path])
@@ -65,8 +68,8 @@ export default function MovieDetailPage() {
     setInList(readMyList().some((x) => x.key === `movie:${movie.id}`))
   }
 
-  if (loading) return <div className="text-white/70">Yükleniyor...</div>
-  if (error) return <div className="text-white/70">Hata: {error}</div>
+  if (loading) return <Loading />
+  if (error) return <ErrorState title="Film yüklenemedi" message={error} onRetry={() => setReloadNonce((n) => n + 1)} />
   if (!movie) return <div className="text-white/70">Film bulunamadı.</div>
 
   return (

@@ -1,7 +1,7 @@
-export default function Loading({ className = '' }) {
+export default function Loading({ label = 'Yükleniyor...', className = '' }) {
   return (
-    <div className={`py-16 text-center text-slate-300 ${className}`}>
-      Loading...
+    <div className={`py-16 text-center text-white/70 ${className}`}>
+      {label}
     </div>
   )
 }

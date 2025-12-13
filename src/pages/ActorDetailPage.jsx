@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import PosterCard from '../components/PosterCard'
+import Loading from '../components/Loading'
+import ErrorState from '../components/ErrorState'
 import { clearTmdbAuth, getPerson, getPersonCombinedCredits, setTmdbAuth, tmdbImage } from '../services/tmdb'
 
 function sortByPopularityDesc(a, b) {
@@ -145,7 +147,8 @@ export default function ActorDetailPage() {
     )
   }
 
-  if (error) return <h2 className="text-xl text-center mt-10 text-white">Hata: {error}</h2>
+  if (loading && !actor) return <Loading />
+  if (error) return <ErrorState title="Oyuncu yüklenemedi" message={error} onRetry={() => setAuthNonce((n) => n + 1)} />
 
   return (
     <div>

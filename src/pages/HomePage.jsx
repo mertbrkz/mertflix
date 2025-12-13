@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import Row from '../components/Row'
 import PosterCard from '../components/PosterCard'
 import Banner from '../components/Banner'
+import Loading from '../components/Loading'
+import ErrorState from '../components/ErrorState'
 import { discoverMovies, discoverTv, tmdbImage } from '../services/tmdb'
 import { readMyList } from '../services/myList'
 
@@ -71,11 +73,16 @@ export default function HomePage() {
   const [forYouShows, setForYouShows] = useState([])
   const [forYouMovies, setForYouMovies] = useState([])
   const [tmdbMissing, setTmdbMissing] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [reloadNonce, setReloadNonce] = useState(0)
 
   useEffect(() => {
     let cancelled = false
 
     async function load() {
+      setLoading(true)
+      setError(null)
       try {
         const all = {}
         setTmdbMissing(false)
@@ -152,15 +159,24 @@ export default function HomePage() {
           }
         }
       } catch (err) {
-        if (!cancelled && typeof err?.message === 'string' && err.message.toLowerCase().includes('tmdb auth missing')) {
+        if (cancelled) return
+
+        const msg = typeof err?.message === 'string' ? err.message : 'Hata'
+        if (msg.toLowerCase().includes('tmdb auth missing')) {
           setTmdbMissing(true)
+          setError(null)
+        } else {
+          setTmdbMissing(false)
+          setError(msg)
         }
+      } finally {
+        if (!cancelled) setLoading(false)
       }
     }
 
     load()
     return () => { cancelled = true }
-  }, [])
+  }, [reloadNonce])
 
   return (
     <div>
@@ -173,6 +189,17 @@ export default function HomePage() {
             <div className="text-white/70 mt-1">Diziler ve filmler TMDB’den çekiliyor. `.env` ayarla veya Movies sayfasından token gir.</div>
           </div>
         ) : null}
+
+        {error ? (
+          <ErrorState
+            title="Anasayfa yüklenemedi"
+            message={error}
+            onRetry={() => setReloadNonce((n) => n + 1)}
+            className="max-w-xl"
+          />
+        ) : null}
+
+        {loading ? <Loading /> : null}
 
         {forYouShows.length ? (
           <Row title="Senin için — Diziler" seeAllTo="/shows">

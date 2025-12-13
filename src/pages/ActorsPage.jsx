@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Loading from '../components/Loading'
+import ErrorState from '../components/ErrorState'
 import { clearTmdbAuth, getPopularPeople, searchPeople, setTmdbAuth, tmdbImage } from '../services/tmdb'
 
 const PAGE_SIZE = 20
@@ -178,7 +180,8 @@ export default function ActorsPage() {
     )
   }
 
-  if (error) return <h2 className="text-xl text-center mt-10 text-white">Hata: {error}</h2>
+  if (loading && items.length === 0) return <Loading />
+  if (error) return <ErrorState title="Oyuncular yüklenemedi" message={error} onRetry={() => setAuthNonce((n) => n + 1)} />
 
   return (
     <div>
