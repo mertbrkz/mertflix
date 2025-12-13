@@ -4,6 +4,7 @@ import Home from './pages/HomePage'
 import ShowListingPage from './pages/ShowListingPage'
 import ShowDetailPage from './pages/ShowDetailPage'
 import MovieDetailPage from './pages/MovieDetailPage'
+import SearchPage from './pages/SearchPage'
 import Sidebar from './components/Sidebar'
 import MyList from './pages/MyList'
 import ActorsPage from './pages/ActorsPage'
@@ -38,6 +39,7 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8">
         <Routes>
           <Route path="/" element={<Home user={user} setUser={setUser} />} />
+          <Route path="/search" element={<SearchPage />} />
           <Route path="/shows" element={<ShowListingPage key="shows" variant="shows" />} />
           <Route path="/movies" element={<ShowListingPage key="movies" variant="movies" />} />
           <Route path="/actors" element={<ActorsPage />} />

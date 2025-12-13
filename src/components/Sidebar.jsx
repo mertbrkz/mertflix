@@ -1,19 +1,14 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useMemo, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 export default function Sidebar({ mobileOpen = false, onMobileOpen = () => {}, onMobileClose = () => {} }) {
   const [q, setQ] = useState('')
   const navigate = useNavigate()
-  const location = useLocation()
-
-  const searchBase = useMemo(() => {
-    return location.pathname.startsWith('/movies') ? '/movies' : '/shows'
-  }, [location.pathname])
 
   function submitSearch() {
     const query = (q || '').trim()
     if (!query) return
-    navigate(`${searchBase}?q=${encodeURIComponent(query)}`)
+    navigate(`/search?q=${encodeURIComponent(query)}`)
     onMobileClose()
   }
 
