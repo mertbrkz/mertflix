@@ -1,15 +1,23 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Sidebar({ mobileOpen = false, onMobileOpen = () => {}, onMobileClose = () => {} }) {
   const [q, setQ] = useState('')
   const navigate = useNavigate()
+  const { isAuthenticated, email, signOut } = useAuth()
 
   function submitSearch() {
     const query = (q || '').trim()
     if (!query) return
     navigate(`/search?q=${encodeURIComponent(query)}`)
     onMobileClose()
+  }
+
+  function handleSignOut() {
+    signOut()
+    onMobileClose()
+    navigate('/')
   }
 
   return (
@@ -54,6 +62,26 @@ export default function Sidebar({ mobileOpen = false, onMobileOpen = () => {}, o
             <Link to="/actors" onClick={onMobileClose} className="px-2 py-2 rounded hover:bg-white/5 font-semibold tracking-wide uppercase text-white/90 hover:text-white transition-colors">Aktörler</Link>
             <Link to="/my-list" onClick={onMobileClose} className="px-2 py-2 rounded hover:bg-white/5 font-semibold tracking-wide uppercase text-white/90 hover:text-white transition-colors">Listem</Link>
           </nav>
+
+          <div className="mt-4 pt-4 border-t border-white/10 text-sm">
+            {isAuthenticated ? (
+              <>
+                <div className="text-white/60 truncate">{email || 'Giriş yapıldı'}</div>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="mt-2 w-full bg-black border border-white/10 hover:bg-white/5"
+                >
+                  Çıkış Yap
+                </button>
+              </>
+            ) : (
+              <div className="flex gap-2">
+                <Link to="/login" onClick={onMobileClose} className="flex-1 text-center bg-black border border-white/10 hover:bg-white/5">Oturum Aç</Link>
+                <Link to="/register" onClick={onMobileClose} className="flex-1 text-center bg-black border border-white/10 hover:bg-white/5">Kayıt Ol</Link>
+              </div>
+            )}
+          </div>
         </aside>
       </div>
 
@@ -84,6 +112,26 @@ export default function Sidebar({ mobileOpen = false, onMobileOpen = () => {}, o
             <Link to="/movies" className="block px-2 py-2 rounded hover:bg-white/5 font-semibold tracking-wide uppercase text-white/90 hover:text-white transition-colors">Filmler</Link>
             <Link to="/actors" className="block px-2 py-2 rounded hover:bg-white/5 font-semibold tracking-wide uppercase text-white/90 hover:text-white transition-colors">Aktörler</Link>
             <Link to="/my-list" className="block px-2 py-2 rounded hover:bg-white/5 font-semibold tracking-wide uppercase text-white/90 hover:text-white transition-colors">Listem</Link>
+
+            <div className="mt-4 pt-4 border-t border-white/10">
+              {isAuthenticated ? (
+                <>
+                  <div className="px-2 text-xs text-white/60 truncate">{email || 'Giriş yapıldı'}</div>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="mt-2 w-full bg-black border border-white/10 hover:bg-white/5"
+                  >
+                    Çıkış Yap
+                  </button>
+                </>
+              ) : (
+                <div className="flex gap-2 px-1">
+                  <Link to="/login" className="flex-1 text-center bg-black border border-white/10 hover:bg-white/5">Oturum Aç</Link>
+                  <Link to="/register" className="flex-1 text-center bg-black border border-white/10 hover:bg-white/5">Kayıt Ol</Link>
+                </div>
+              )}
+            </div>
           </nav>
         </div>
       </aside>

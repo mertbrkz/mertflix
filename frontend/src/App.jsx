@@ -10,8 +10,11 @@ import RegisterPage from './pages/RegisterPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
+import SettingsPage from './pages/SettingsPage'
+import RequireAuth from './components/RequireAuth'
 import Sidebar from './components/Sidebar'
 import MyList from './pages/MyList'
+import WatchedHistory from './pages/WatchedHistory'
 import ActorsPage from './pages/ActorsPage'
 import ActorDetailPage from './pages/ActorDetailPage'
 import Footer from './components/Footer'
@@ -46,16 +49,20 @@ function App() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-      <Route element={<AppLayout mobileSidebarOpen={mobileSidebarOpen} setMobileSidebarOpen={setMobileSidebarOpen} />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/shows" element={<ShowListingPage key="shows" variant="shows" />} />
-        <Route path="/movies" element={<ShowListingPage key="movies" variant="movies" />} />
-        <Route path="/actors" element={<ActorsPage />} />
-        <Route path="/actors/:id" element={<ActorDetailPage />} />
-        <Route path="/shows/:id" element={<ShowDetailPage />} />
-        <Route path="/movies/:id" element={<MovieDetailPage />} />
-        <Route path="/my-list" element={<MyList />} />
+      <Route element={<RequireAuth />}>
+        <Route element={<AppLayout mobileSidebarOpen={mobileSidebarOpen} setMobileSidebarOpen={setMobileSidebarOpen} />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/shows" element={<ShowListingPage key="shows" variant="shows" />} />
+          <Route path="/movies" element={<ShowListingPage key="movies" variant="movies" />} />
+          <Route path="/actors" element={<ActorsPage />} />
+          <Route path="/actors/:id" element={<ActorDetailPage />} />
+          <Route path="/shows/:id" element={<ShowDetailPage />} />
+          <Route path="/movies/:id" element={<MovieDetailPage />} />
+          <Route path="/my-list" element={<MyList />} />
+          <Route path="/watched" element={<WatchedHistory />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Route>
       </Route>
     </Routes>
   )
