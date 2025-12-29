@@ -14,6 +14,7 @@ function parseCorsOrigins() {
   return raw
     .split(',')
     .map((s) => s.trim())
+    .map((s) => s.replace(/\/+$/, ''))
     .filter(Boolean)
 }
 
