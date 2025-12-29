@@ -49,6 +49,10 @@ export async function sendMail({ to, subject, text }) {
   } catch (e) {
     const msg = e?.message ? String(e.message) : String(e)
     console.error('[MAIL:ERROR]', {
+      host: config.smtp.host,
+      port: config.smtp.port,
+      secure: config.smtp.port === 465,
+      timeoutMs,
       message: msg,
       code: e?.code,
       command: e?.command,
