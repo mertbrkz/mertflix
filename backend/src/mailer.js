@@ -9,7 +9,56 @@ function hasAnySmtpSetting() {
   return !!(config.smtp.host || config.smtp.port || config.smtp.user || config.smtp.pass)
 }
 
+async function sendMailViaBrevo({ to, subject, text, timeoutMs }) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    const resp = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'api-key': config.brevoApiKey,
+      },
+      body: JSON.stringify({
+        sender: { email: config.mailFrom },
+        to: [{ email: to }],
+        subject,
+        textContent: text,
+      }),
+      signal: controller.signal,
+    })
+
+    if (!resp.ok) {
+      const bodyText = await resp.text().catch(() => '')
+      console.error('[MAIL:ERROR]', {
+        provider: 'brevo',
+        status: resp.status,
+        body: bodyText,
+      })
+      throw new Error('Email could not be sent')
+    }
+  } catch (e) {
+    const msg = e?.name === 'AbortError' ? 'Request timeout' : e?.message ? String(e.message) : String(e)
+    console.error('[MAIL:ERROR]', {
+      provider: 'brevo',
+      message: msg,
+    })
+    throw new Error('Email could not be sent')
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export async function sendMail({ to, subject, text }) {
+  const timeoutMsRaw = process.env.SMTP_TIMEOUT_MS
+  const timeoutMs = timeoutMsRaw ? Number(timeoutMsRaw) : 15000
+
+  if (config.brevoApiKey) {
+    await sendMailViaBrevo({ to, subject, text, timeoutMs: Number.isFinite(timeoutMs) ? timeoutMs : 15000 })
+    return
+  }
+
   if (!hasSmtpConfigured()) {
     // If the user started configuring SMTP, fail loudly to avoid "code sent" UX without delivery.
     if (hasAnySmtpSetting()) {
@@ -22,9 +71,6 @@ export async function sendMail({ to, subject, text }) {
     console.log('[MAIL:DEV] text=', text)
     return
   }
-
-  const timeoutMsRaw = process.env.SMTP_TIMEOUT_MS
-  const timeoutMs = timeoutMsRaw ? Number(timeoutMsRaw) : 15000
 
   const transporter = nodemailer.createTransport({
     host: config.smtp.host,

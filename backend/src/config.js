@@ -25,6 +25,8 @@ export const config = {
   jwtSecret: required('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
 
+  brevoApiKey: process.env.BREVO_API_KEY ? String(process.env.BREVO_API_KEY).trim() : '',
+
   mailFrom: process.env.MAIL_FROM || (process.env.SMTP_USER ? String(process.env.SMTP_USER).trim() : '') || 'no-reply@mertflix.local',
   smtp: {
     host: process.env.SMTP_HOST ? String(process.env.SMTP_HOST).trim() : '',
