@@ -23,6 +23,9 @@ export async function sendMail({ to, subject, text }) {
     return
   }
 
+  const timeoutMsRaw = process.env.SMTP_TIMEOUT_MS
+  const timeoutMs = timeoutMsRaw ? Number(timeoutMsRaw) : 15000
+
   const transporter = nodemailer.createTransport({
     host: config.smtp.host,
     port: config.smtp.port,
@@ -31,6 +34,9 @@ export async function sendMail({ to, subject, text }) {
       user: config.smtp.user,
       pass: config.smtp.pass,
     },
+    connectionTimeout: Number.isFinite(timeoutMs) ? timeoutMs : 15000,
+    greetingTimeout: Number.isFinite(timeoutMs) ? timeoutMs : 15000,
+    socketTimeout: Number.isFinite(timeoutMs) ? timeoutMs * 2 : 30000,
   })
 
   try {
@@ -42,7 +48,13 @@ export async function sendMail({ to, subject, text }) {
     })
   } catch (e) {
     const msg = e?.message ? String(e.message) : String(e)
-    console.error('[MAIL:ERROR]', msg)
+    console.error('[MAIL:ERROR]', {
+      message: msg,
+      code: e?.code,
+      command: e?.command,
+      response: e?.response,
+      responseCode: e?.responseCode,
+    })
     throw new Error('Email could not be sent')
   }
 }

@@ -16,6 +16,8 @@ import { sendMail } from './mailer.js'
 
 const app = express()
 
+const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
+
 app.use(cors({ origin: config.corsOrigin }))
 app.use(express.json())
 
@@ -46,7 +48,7 @@ async function getOptionalViewerUserId(req) {
 
 // --- Auth ---
 
-app.post('/auth/register', async (req, res) => {
+app.post('/auth/register', asyncHandler(async (req, res) => {
   const email = normalizeEmail(req.body?.email)
   const password = req.body?.password
 
@@ -95,7 +97,7 @@ app.post('/auth/register', async (req, res) => {
   }
 
   return res.status(201).json({ ok: true, message: 'Verification code sent' })
-})
+}))
 
 app.post('/auth/verify-email', async (req, res) => {
   const email = normalizeEmail(req.body?.email)
@@ -710,6 +712,12 @@ app.post('/comments/:id/vote', requireAuth, async (req, res) => {
   )
 
   return res.json({ ok: true, value })
+})
+
+app.use((err, req, res, next) => {
+  const msg = err?.stack ? String(err.stack) : err?.message ? String(err.message) : String(err)
+  console.error('[API:ERROR]', msg)
+  return res.status(500).json({ error: 'Internal server error' })
 })
 
 app.listen(config.port, () => {
